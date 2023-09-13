@@ -24,7 +24,13 @@ public class ItemService {
     }
 
     Item newItem(Item item) {
+        if (!itemIsValid(item))
+            throw new ItemNotValidException(item.getId());
         return repository.save(item);
+    }
+
+    private boolean itemIsValid(Item item) {
+        return (item.getTitle() != null);
     }
 
     Item replaceItem(Item newItem, String id) {
