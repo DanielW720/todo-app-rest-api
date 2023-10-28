@@ -33,17 +33,17 @@ public class ItemService {
         return (item.getTitle() != null);
     }
 
-    Item replaceItem(Item newItem, String id) {
+    Item replaceItem(Item updatedItem, String id) {
         return repository.findById(id)
                 .map(item -> {
-                    item.setIsActive(newItem.getIsActive());
-                    item.setTitle(newItem.getTitle());
-                    item.setIndex(newItem.getIndex());
+                    item.setIsActive(updatedItem.getIsActive());
+                    item.setTitle(updatedItem.getTitle());
+                    item.setIndex(updatedItem.getIndex());
                     return repository.save(item);
                 })
                 .orElseGet(() -> {
-                    newItem.setId(id);
-                    return repository.save(newItem);
+                    updatedItem.setId(id);
+                    return repository.save(updatedItem);
                 });
     }
 

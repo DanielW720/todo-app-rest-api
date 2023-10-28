@@ -44,8 +44,8 @@ public class ItemController {
     }
 
     @PutMapping("/items/{id}")
-    Item replaceItem(@RequestBody Item newItem, @PathVariable String id) {
-        return service.replaceItem(newItem, id);
+    Item replaceItem(@RequestBody Item updatedItem, @PathVariable String id) {
+        return service.replaceItem(updatedItem, id);
     }
 
     @DeleteMapping("/items/{id}")
