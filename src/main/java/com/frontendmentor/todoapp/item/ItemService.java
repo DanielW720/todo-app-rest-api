@@ -36,6 +36,7 @@ public class ItemService {
     Item replaceItem(Item updatedItem, String id) {
         return repository.findById(id)
                 .map(item -> {
+                    item.setUid(updatedItem.getUid());
                     item.setIsActive(updatedItem.getIsActive());
                     item.setTitle(updatedItem.getTitle());
                     item.setIndex(updatedItem.getIndex());

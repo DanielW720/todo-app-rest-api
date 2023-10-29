@@ -6,6 +6,7 @@ public class Item {
 
     @Id
     private String id;
+    private String uid;
     private String title;
     private boolean isActive;
     private int index;
@@ -16,6 +17,14 @@ public class Item {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public String getTitle() {
