@@ -17,6 +17,10 @@ public class ItemService {
         return repository.findAll();
     }
 
+    List<Item> all(String uid) {
+        return repository.findByUid(uid);
+    }
+
     Item one(String id) {
         return repository
                 .findById(id)

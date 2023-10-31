@@ -1,5 +1,8 @@
 package com.frontendmentor.todoapp.item;
 
+import com.frontendmentor.todoapp.utils.FirebaseAuthenticationUtil;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -20,12 +23,17 @@ public class ItemController {
         this.service = service;
     }
 
+    // Todo: return a ResponseEntity
     @GetMapping("/items")
-    Map<String, List<Item>> all() {
-        return Collections.singletonMap(
-                "items",
-                service.all()
-        );
+    Map<String, List<Item>> all(@RequestHeader("Authorization") String idToken) {
+        try {
+            FirebaseToken decodedToken = FirebaseAuthenticationUtil.verifyIdToken(idToken);
+            String uid = decodedToken.getUid();
+            return Collections.singletonMap("items", service.all(uid));
+        } catch (FirebaseAuthException e) {
+            // return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return Collections.singletonMap("items", Collections.emptyList());
+        }
     }
 
     @GetMapping("/items/item")
