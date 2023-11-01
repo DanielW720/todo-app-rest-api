@@ -13,10 +13,25 @@ public class ItemService {
         this.repository = repository;
     }
 
+    /**
+     * Fetch as items belonging to user.
+     *
+     * @param uid User ID
+     * @return List of items belonging to user
+     */
     List<Item> all(String uid) {
         return repository.findByUid(uid);
     }
 
+    /**
+     * Fetches item.
+     *
+     * @param id  ID of the item
+     * @param uid User ID
+     * @return Item
+     * @throws UnauthorizedUserException User do not own the item
+     * @throws ItemNotFoundException     Item with provided ID not found
+     */
     Item one(String id, String uid) throws UnauthorizedUserException, ItemNotFoundException {
         Item item = repository
                 .findById(id)
