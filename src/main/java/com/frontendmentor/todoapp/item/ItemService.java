@@ -1,13 +1,17 @@
 package com.frontendmentor.todoapp.item;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ItemService {
 
     private final ItemRepository repository;
+    Logger logger = LoggerFactory.getLogger(ItemService.class);
 
     ItemService(ItemRepository repository) {
         this.repository = repository;
@@ -119,12 +123,22 @@ public class ItemService {
                 });
     }
 
-    boolean deleteItem(String id) {
-        if (repository.findById(id).isPresent()) {
+    /**
+     * Deletes an item.
+     *
+     * @param id  ID of the item to delete
+     * @param uid User ID
+     * @return True if successful deletion, else false
+     */
+    boolean deleteItem(String id, String uid) {
+        Optional<Item> item = repository.findById(id);
+        if (item.isPresent() && item.get().getUid().equals(uid)) {
             repository.deleteById(id);
             return true;
-        } else
+        } else {
+            logger.error("Could delete item {}", id);
             return false;
+        }
     }
 
 }

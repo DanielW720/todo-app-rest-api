@@ -16,7 +16,7 @@ public class FirebaseAuthenticationUtil {
             return FirebaseAuth.getInstance().verifyIdToken(idToken);
         } catch (FirebaseAuthException e) {
             // Token verification failed, handle the exception as needed
-            logger.info("Firebase idToken verification failed: {}", e.getMessage());
+            logger.error("Firebase idToken verification failed: {}", e.getMessage());
             throw new FirebaseAuthException(e);
         }
     }

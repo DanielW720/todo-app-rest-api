@@ -92,10 +92,17 @@ public class ItemController {
     }
 
     @DeleteMapping("/items/{id}")
-    ResponseEntity<?> deleteItem(@PathVariable String id) {
-        return service.deleteItem(id) ?
-                ResponseEntity.ok().body("Deleted item " + id) :
-                ResponseEntity.notFound().build();
+    ResponseEntity<?> deleteItem(@PathVariable String id, @RequestHeader("Authorization") String idToken) {
+        try {
+            FirebaseToken decodedToken = FirebaseAuthenticationUtil.verifyIdToken(idToken);
+            String uid = decodedToken.getUid();
+            return service.deleteItem(id, uid) ?
+                    ResponseEntity.ok().body("Deleted item " + id) :
+                    ResponseEntity.notFound().build();
+        } catch (FirebaseAuthException e) {
+            logger.error("User verification failed. Error message: {}", e.getMessage());
+            return null;
+        }
     }
 
 }
