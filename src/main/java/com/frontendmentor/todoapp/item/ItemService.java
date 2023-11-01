@@ -26,7 +26,7 @@ public class ItemService {
             return item;
         } else {
             throw new UnauthorizedUserException(
-                    String.format("User %s is does not have access to item %s", id, uid)
+                    String.format("User %s is does not have access to item %s", uid, id)
             );
         }
     }
@@ -40,7 +40,7 @@ public class ItemService {
      */
     Item newItem(Item item, String uid) {
         item.setUid(uid);
-        if (!itemIsValid(item))
+        if (itemNotValid(item))
             throw new ItemNotValidException();
         return repository.save(item);
     }
@@ -51,9 +51,9 @@ public class ItemService {
      * @param item An item, may or may not be valid
      * @return True if item is valid, else false
      */
-    private boolean itemIsValid(Item item) {
-        return stringIsNotNullNorBlank(item.getTitle()) &&
-                stringIsNotNullNorBlank(item.getUid());
+    private boolean itemNotValid(Item item) {
+        return stringIsNullOrBlank(item.getTitle()) ||
+                stringIsNullOrBlank(item.getUid());
     }
 
     /**
@@ -62,21 +62,44 @@ public class ItemService {
      * @param s A string
      * @return True if s is neither null nor blank
      */
-    private boolean stringIsNotNullNorBlank(String s) {
-        return s != null && !s.isBlank();
+    private boolean stringIsNullOrBlank(String s) {
+        return s == null || s.isBlank();
     }
 
-    Item replaceItem(Item updatedItem, String id) {
+    /**
+     * Updates item, but only if item belongs user and is valid.
+     * If item do not belong to user, throw exception. If item is not found, create new item.
+     *
+     * @param updatedItem Updated item
+     * @param id          ID of item to update
+     * @param uid         User ID (identifying the user to whom the item belong)
+     * @return Updated item
+     * @throws UnauthorizedUserException User do not own the item
+     * @throws ItemNotValidException     Updated item is not valid
+     */
+    Item replaceItem(Item updatedItem, String id, String uid) throws UnauthorizedUserException, ItemNotValidException {
         return repository.findById(id)
                 .map(item -> {
-                    item.setUid(updatedItem.getUid());
+                    if (!item.getUid().equals(uid)) {
+                        throw new UnauthorizedUserException(
+                                String.format("User %s is does not have access to item %s", uid, id)
+                        );
+                    }
                     item.setIsActive(updatedItem.getIsActive());
                     item.setTitle(updatedItem.getTitle());
                     item.setIndex(updatedItem.getIndex());
+                    if (itemNotValid(item)) {
+                        throw new UnauthorizedUserException(
+                                String.format("User %s is does not have access to item %s", uid, id)
+                        );
+                    }
                     return repository.save(item);
                 })
                 .orElseGet(() -> {
                     updatedItem.setId(id);
+                    updatedItem.setUid(uid);
+                    if (itemNotValid(updatedItem))
+                        throw new ItemNotValidException();
                     return repository.save(updatedItem);
                 });
     }

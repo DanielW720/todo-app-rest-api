@@ -72,9 +72,23 @@ public class ItemController {
         }
     }
 
+    // Todo: return a ResponseEntity
     @PutMapping("/items/{id}")
-    Item replaceItem(@RequestBody Item updatedItem, @PathVariable String id) {
-        return service.replaceItem(updatedItem, id);
+    Item replaceItem(@RequestBody Item updatedItem, @PathVariable String id, @RequestHeader("Authorization") String idToken) {
+        try {
+            FirebaseToken decodedToken = FirebaseAuthenticationUtil.verifyIdToken(idToken);
+            String uid = decodedToken.getUid();
+            return service.replaceItem(updatedItem, id, uid);
+        } catch (FirebaseAuthException e) {
+            logger.error("User verification failed. Error message: {}", e.getMessage());
+            return null;
+        } catch (UnauthorizedUserException e) {
+            logger.error("Access not allowed. Error message: {}", e.getMessage());
+            return null;
+        } catch (ItemNotValidException e) {
+            logger.error("Item not valid. Error message: {}", e.getMessage());
+            return null;
+        }
     }
 
     @DeleteMapping("/items/{id}")
