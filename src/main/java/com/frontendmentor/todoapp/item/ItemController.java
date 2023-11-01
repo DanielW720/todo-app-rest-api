@@ -31,6 +31,7 @@ public class ItemController {
             String uid = decodedToken.getUid();
             return Collections.singletonMap("items", service.all(uid));
         } catch (FirebaseAuthException e) {
+            logger.error("User verification failed. Error message: {}", e.getMessage());
             // return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             return Collections.singletonMap("items", Collections.emptyList());
         }
@@ -44,23 +45,29 @@ public class ItemController {
             String uid = decodedToken.getUid();
             return service.one(id, uid);
         } catch (FirebaseAuthException e) {
-            logger.info("User verification failed. Error message: {}", e.getMessage());
+            logger.error("User verification failed. Error message: {}", e.getMessage());
             return null;
         } catch (UnauthorizedUserException e) {
-            logger.info("Access not allowed. Error message: {}", e.getMessage());
+            logger.error("Access not allowed. Error message: {}", e.getMessage());
             return null;
         } catch (ItemNotFoundException e) {
-            logger.info("Item {} was not found. Error message: {}", id, e.getMessage());
+            logger.error("Item {} was not found. Error message: {}", id, e.getMessage());
             return null;
         }
     }
 
+    // Todo: return a ResponseEntity
     @PostMapping("/items")
-    Item newItem(@RequestBody Item item) {
+    Item newItem(@RequestBody Item item, @RequestHeader("Authorization") String idToken) {
         try {
-            return service.newItem(item);
-        } catch (Exception e) {
-            logger.info(e.getMessage());
+            FirebaseToken decodedToken = FirebaseAuthenticationUtil.verifyIdToken(idToken);
+            String uid = decodedToken.getUid();
+            return service.newItem(item, uid);
+        } catch (FirebaseAuthException e) {
+            logger.error("User verification failed. Error message: {}", e.getMessage());
+            return null;
+        } catch (ItemNotValidException e) {
+            logger.error("Item not valid. Error message: {}", e.getMessage());
             return null;
         }
     }
