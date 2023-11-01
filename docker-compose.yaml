@@ -1,11 +1,16 @@
 services:
   rest-api:
+    container_name: rest-api
+    image: todoapp/rest-api:0.0.2
     build:
       context: .
     ports:
       - 8080:8080
+    volumes:
+      - ./firebase/service-account.json:/firebase/service-account.json
     environment:
       MONGODB_HOST: todoapp-mongodb
+      GOOGLE_APPLICATION_CREDENTIALS: /firebase/service-account.json
     depends_on:
       - todoapp-mongodb
 
