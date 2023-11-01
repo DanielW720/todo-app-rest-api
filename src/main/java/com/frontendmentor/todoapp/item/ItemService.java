@@ -27,6 +27,20 @@ public class ItemService {
                 .orElseThrow(() -> new ItemNotFoundException(id));
     }
 
+    Item one(String id, String uid) throws UnauthorizedUserException, ItemNotFoundException {
+        Item item = repository
+                .findById(id)
+                .orElseThrow(() -> new ItemNotFoundException(id));
+
+        if (item.getUid().equals(uid)) {
+            return item;
+        } else {
+            throw new UnauthorizedUserException(
+                    String.format("User %s is does not have access to item %s", id, uid)
+            );
+        }
+    }
+
     Item newItem(Item item) {
         if (!itemIsValid(item))
             throw new ItemNotValidException(item.getId());

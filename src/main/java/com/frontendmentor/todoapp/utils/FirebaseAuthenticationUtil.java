@@ -12,9 +12,8 @@ public class FirebaseAuthenticationUtil {
 
     public static FirebaseToken verifyIdToken(String idToken) throws FirebaseAuthException {
         try {
-            FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
             // Additional logic to check user roles, custom claims, etc., can be added here if needed
-            return decodedToken;
+            return FirebaseAuth.getInstance().verifyIdToken(idToken);
         } catch (FirebaseAuthException e) {
             // Token verification failed, handle the exception as needed
             logger.info("Firebase idToken verification failed: {}", e.getMessage());

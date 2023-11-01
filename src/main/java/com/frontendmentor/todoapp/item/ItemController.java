@@ -36,9 +36,23 @@ public class ItemController {
         }
     }
 
+    // Todo: return a ResponseEntity
     @GetMapping("/items/item")
-    Item one(@RequestParam String id) {
-        return service.one(id);
+    Item one(@RequestParam String id, @RequestHeader("Authorization") String idToken) {
+        try {
+            FirebaseToken decodedToken = FirebaseAuthenticationUtil.verifyIdToken(idToken);
+            String uid = decodedToken.getUid();
+            return service.one(id, uid);
+        } catch (FirebaseAuthException e) {
+            logger.info("User verification failed. Error message: {}", e.getMessage());
+            return null;
+        } catch (UnauthorizedUserException e) {
+            logger.info("Access not allowed. Error message: {}", e.getMessage());
+            return null;
+        } catch (ItemNotFoundException e) {
+            logger.info("Item {} was not found. Error message: {}", id, e.getMessage());
+            return null;
+        }
     }
 
     @PostMapping("/items")
